@@ -1,0 +1,37 @@
+/* Custom styles for login page */
+@layer base {
+	:root { --bg: #1f1723; }
+	html,body { height:100%; }
+	.font-poppins { font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; }
+}
+
+/* Make the left panel image stretch correctly */
+.bg-cover { background-repeat: no-repeat; background-size: cover; }
+
+/* subtle tint over the left image to harmonize color tone with the form panel */
+.left-tint { background: linear-gradient(90deg, rgba(115,57,185,0.08), rgba(255,255,255,0)); }
+
+/* Right panel: light-blue background and darker text for readability */
+@media (min-width: 768px) {
+	.right-panel { background: linear-gradient(180deg, #e6f6ff, #d0eaff); border-left: 1px solid rgba(0,0,0,0.06); color: #0f172a; }
+	.right-panel .text-white { color: #0f172a !important; }
+	.right-panel .text-gray-300 { color: #475569 !important; }
+}
+
+/* Vertical separator between left image and right form on larger screens */
+@media (min-width: 768px) {
+	.right-panel { border-left: 1px solid rgba(255,255,255,0.06); }
+}
+
+/* Small form tweaks */
+input::-ms-clear { display: none; }
+
+/* Make key login texts bolder for emphasis */
+.w-full.max-w-md > h1 { font-weight: 800 !important; }
+.w-full.max-w-md > p { font-weight: 600 !important; }
+.w-full.max-w-md label, .w-full.max-w-md .text-sm { font-weight: 600 !important; }
+
+/* Responsive tweaks */
+@media (max-width: 767px) {
+	.font-poppins { padding: 0; }
+}

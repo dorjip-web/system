@@ -1,0 +1,16 @@
+/* Admin dashboard stylesheet
+   Reuse main dashboard styles and apply admin-specific overrides.
+*/
+
+@import url('dashboard.css');
+
+/* Admin-specific avatar color and stronger menu emphasis */
+.sidebar .avatar{background:#1e73be}
+.menu a{font-weight:600}
+.menu a.active{box-shadow:0 4px 14px rgba(30,115,190,0.12)}
+
+/* Slightly more compact cards on admin views */
+.card{padding:16px}
+
+/* Quick action buttons appearance */
+.card .btn{padding:10px 12px;border-radius:6px}

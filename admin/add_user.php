@@ -1,0 +1,155 @@
+<?php
+include '../database/database.php';
+
+if (isset($_POST['create'])) {
+
+    $employee_id = $_POST['employee_id'] ?? '';
+    $eid = $_POST['eid'] ?? '';
+
+    $name = $_POST['employee_name'] ?? '';
+    $designation = $_POST['designation'] ?? '';
+    $username = $_POST['username'] ?? '';
+    $password = password_hash($_POST['password'] ?? '', PASSWORD_DEFAULT);
+    $department = $_POST['department_id'] ?? null;
+    $role = $_POST['role_id'] ?? null;
+    $status = $_POST['status'] ?? 'Active';
+
+    $sql = "INSERT INTO tab1 (employee_id,eid,employee_name,username,password,designation,department_id,role_id,status)
+    VALUES (:employee_id,:eid,:name,:username,:password,:designation,:department,:role,:status)";
+    $stmt = $conn->prepare($sql);
+    $stmt->execute([':employee_id'=>$employee_id,':eid'=>$eid,':name'=>$name,':username'=>$username,':password'=>$password,':designation'=>$designation,':department'=>$department,':role'=>$role,':status'=>$status]);
+
+    header("Location: users.php");
+    exit;
+}
+?>
+ 
+<?php
+if (session_status() === PHP_SESSION_NONE) session_start();
+$username = $_SESSION['username'] ?? 'NTMH';
+?>
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Admin - Add User</title>
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="app">
+    <aside class="sidebar">
+        <div class="profile">
+            <div class="avatar">NT</div>
+            <div class="username"><?php echo htmlspecialchars($username); ?></div>
+        </div>
+        <nav class="menu">
+            <a href="../admin_dashboard.php">Admin Dashboard</a>
+            <div class="menu-item">
+                <a href="users.php" <?php if(basename($_SERVER['PHP_SELF']) === 'users.php') echo 'class="active"'; ?>>User Management</a>
+                <div class="submenu">
+                    <a href="add_user.php">➕ Add New User</a>
+                </div>
+            </div>
+            <a href="department_management.php" <?php if(basename($_SERVER['PHP_SELF']) === 'department_management.php') echo 'class="active"'; ?>>Department Management</a>
+            <a href="hod_management.php" <?php if(basename($_SERVER['PHP_SELF']) === 'hod_management.php') echo 'class="active"'; ?>>HOD Management</a>
+            <a href="roles_permissions.php" <?php if(basename($_SERVER['PHP_SELF']) === 'roles_permissions.php') echo 'class="active"'; ?>>Roles & Permissions</a>
+            <a href="leave_types.php" <?php if(basename($_SERVER['PHP_SELF']) === 'leave_types.php') echo 'class="active"'; ?>>Leave Types</a>
+            <a href="leave_balance.php" <?php if(basename($_SERVER['PHP_SELF']) === 'leave_balance.php') echo 'class="active"'; ?>>Leave Balance</a>
+            <a href="attendance_logs.php" <?php if(basename($_SERVER['PHP_SELF']) === 'attendance_logs.php') echo 'class="active"'; ?>>Attendance Logs</a>
+            <a href="leave_records.php" <?php if(basename($_SERVER['PHP_SELF']) === 'leave_records.php') echo 'class="active"'; ?>>Leave Records</a>
+            <a href="reports.php" <?php if(basename($_SERVER['PHP_SELF']) === 'reports.php') echo 'class="active"'; ?>>Reports</a>
+            <a href="settings.php" <?php if(basename($_SERVER['PHP_SELF']) === 'settings.php') echo 'class="active"'; ?>>Settings</a>
+        </nav>
+    </aside>
+
+    <main class="main">
+        <header class="topbar">
+            <div class="search"> <input placeholder="Search..."> </div>
+            <div class="logout"><a href="../login.php">Logout</a></div>
+        </header>
+
+        <section>
+
+<!-- page content starts here -->
+
+<div class="leave-form" style="padding:18px">
+
+<h2>Add New User</h2>
+
+<form method="POST">
+    <div class="row-grid-3">
+        <div class="col">
+            <label>Employee ID</label>
+            <input type="text" name="employee_id" required class="form-control">
+        </div>
+
+        <div class="col">
+            <label>EID</label>
+            <input type="text" name="eid" required class="form-control">
+        </div>
+
+        <div class="col">
+            <label>Employee Name</label>
+            <input type="text" name="employee_name" required class="form-control">
+        </div>
+
+        <div class="col">
+            <label>Designation</label>
+            <input type="text" name="designation" required class="form-control">
+        </div>
+
+        <div class="col">
+            <label>Username</label>
+            <input type="text" name="username" required class="form-control">
+        </div>
+
+        <div class="col">
+            <label>Password</label>
+            <input type="password" name="password" required class="form-control">
+        </div>
+
+        <div class="col">
+            <label>Department</label>
+            <select name="department_id" class="form-control">
+                <option value="1">Administration</option>
+                <option value="2">Jamched</option>
+                <option value="3">Acupuncture</option>
+                <option value="4">OPD</option>
+                <option value="5">Tsubched</option>
+                <option value="6">IPD</option>
+            </select>
+        </div>
+
+        <div class="col">
+            <label>Role</label>
+            <select name="role_id" class="form-control">
+                <option value="1">Medical_Superintendent</option>
+                <option value="2">HoD</option>
+                <option value="3">Employee</option>
+            </select>
+        </div>
+
+        <div class="col">
+            <label>Status</label>
+            <select name="status" class="form-control">
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+            </select>
+        </div>
+    </div>
+
+    <button type="submit" name="create" class="btn">Create User</button>
+
+</form>
+
+</div>
+<!-- page content ends here -->
+
+        </section>
+    </main>
+</div>
+</body>
+</html>
+ 

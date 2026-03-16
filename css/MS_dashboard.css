@@ -1,0 +1,8 @@
+/* MS Dashboard styles: reuse HoD/dashboard styles */
+@import 'hod_dashboard.css';
+
+/* Minimal MS-specific overrides */
+.avatar{background:var(--orange)}
+.card-value{color:var(--orange)}
+.btn-approve{background:var(--orange);color:#fff}
+.btn-reject{background:var(--orange);color:#fff}

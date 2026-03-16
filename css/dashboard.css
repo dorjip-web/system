@@ -1,0 +1,109 @@
+:root{--orange:#ff6b00;--dark:#2f3d44;--light:#e6f0f3;--muted:#7a8a91}
+*{box-sizing:border-box;font-family:Inter,system-ui,Arial,Helvetica,sans-serif}
+body{margin:0;background:var(--light)}
+.app{display:flex;min-height:100vh}
+.sidebar{width:240px;background:var(--dark);color:#fff;padding:24px 16px}
+.profile{display:flex;align-items:center;gap:12px;margin-bottom:24px}
+.avatar{width:56px;height:56px;border-radius:50%;background:var(--orange);display:flex;align-items:center;justify-content:center;font-weight:700}
+.username{font-weight:600}
+.menu a{display:block;padding:12px 16px;color:#cfd8db;margin:6px 0;border-radius:4px;text-decoration:none}
+.menu a.active{background:var(--orange);color:#fff}
+.menu .menu-item{margin:0}
+.menu .submenu a{display:block;padding:8px 16px 8px 28px;color:#cfd8db;margin:2px 0;border-radius:4px;text-decoration:none;font-size:14px}
+.menu .submenu a:hover{background:rgba(255,255,255,0.03);color:#fff}
+.main{flex:1;padding:18px}
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;background:var(--orange);color:#fff;padding:12px 16px;border-radius:8px}
+.topbar .search input{width:560px;padding:10px 14px;border-radius:24px;border:2px solid rgba(255,255,255,0.6);background:rgba(255,255,255,0.95);outline:none}
+.topbar .logout a{background:#fff;padding:8px 12px;border-radius:6px;text-decoration:none;color:var(--orange);font-weight:600}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(300px,1fr));grid-auto-rows:auto;gap:20px;align-items:start}
+
+/* Place employee + attendance in first row, leave spans full width below */
+.grid > .employee-card{grid-column:1}
+.grid > .attendance-card{grid-column:2}
+.grid > .leave-card{grid-column:1 / -1}
+
+/* make the two top cards match size and layout their content vertically */
+.grid > .employee-card,
+.grid > .attendance-card{
+	display:flex;
+	flex-direction:column;
+	min-height:440px;
+}
+
+.card{background:#fff;border-radius:8px;padding:20px;box-shadow:0 6px 18px rgba(0,0,0,0.06)}
+.card h3{margin:0 0 12px 0;color:var(--dark)}
+.card h2{margin:0 0 12px 0;color:var(--dark)}
+.welcome-light{color:#9fd6ff}
+.welcome-orange{color:var(--orange)}
+.name-blue{color:#1e73be}
+.status-active{color:#1e73be;font-weight:600}
+.employee-card .detail{margin:6px 0;color:var(--muted)}
+.attendance-card .att-actions{display:flex;gap:12px;margin-bottom:12px}
+.btn{background:var(--orange);border:none;color:#fff;padding:10px 14px;border-radius:6px;cursor:pointer}
+.btn[disabled]{opacity:0.5;cursor:not-allowed}
+.today-status div{margin:6px 0;color:#333}
+.monthly{margin-top:12px;color:var(--muted)}
+.notifications .note{background:#fff6f0;border-left:4px solid var(--orange);padding:8px;margin:8px 0;border-radius:4px;color:#6b4b2c}
+.leave-form .row{margin-bottom:10px}
+.leave-form label{display:block;font-size:13px;margin-bottom:6px;color:var(--muted)}
+.leave-form input,.leave-form select{width:100%;padding:8px;border:1px solid var(--orange);border-radius:6px;transition:box-shadow .15s,border-color .15s}
+.leave-form input:focus,.leave-form select:focus{outline:none;box-shadow:0 0 0 3px rgba(255,107,0,0.08);border-color:var(--orange)}
+.row-inline{display:flex;gap:12px}
+.leave-form .row-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:12px}
+.leave-form .row-grid .col label{margin-bottom:6px}
+.leave-form .row-grid .col input,.leave-form .row-grid .col select{width:100%}
+.leave-form .row-grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px}
+.leave-form .row-grid-3 .col label{margin-bottom:6px}
+.leave-form .row-grid-3 .col input,.leave-form .row-grid-3 .col select{width:100%}
+.leave-history table{width:100%;border-collapse:collapse;border-spacing:0;font-size:13px}
+.leave-history th,.leave-history td{padding:8px;border-bottom:none;text-align:left}
+
+/* Fallback / higher-specificity rules in case other styles override the defaults */
+.card.leave-card .leave-form input,
+.card.leave-card .leave-form select,
+.leave-form input[type="date"],
+.leave-form input[type="text"],
+.leave-form textarea{
+	border:1px solid var(--orange) !important;
+	border-radius:6px !important;
+}
+
+.leave-history .table-wrap,
+.leave-history .table-wrap table{
+	border-radius:8px;
+	overflow:hidden;
+}
+
+/* thin orange dividers between inner rows */
+.leave-history tbody tr + tr td{
+	border-top:1px solid var(--orange);
+}
+.stats-card .stat-items{display:flex;gap:12px;flex-wrap:wrap}
+.stat{flex:1;padding:10px;background:#f7fbfc;border-radius:6px}
+.stat .big{font-size:20px;color:var(--orange);font-weight:700;margin-top:8px}
+
+@media (max-width:1000px){
+	.grid{grid-template-columns:1fr;grid-auto-rows:auto;}
+	.grid > .employee-card,.grid > .attendance-card,.grid > .leave-card{grid-column:auto}
+	.grid > .employee-card,.grid > .attendance-card{min-height:auto}
+}
+
+@media (max-width:700px){
+  .leave-form .row-grid{grid-template-columns:1fr}
+}
+
+/* Admin form 3-column grid for Add/Edit user pages */
+.admin-form{padding:18px;background:transparent}
+.admin-form .form-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;align-items:start}
+.admin-form .form-group{display:flex;flex-direction:column}
+.admin-form .form-group label{font-weight:600;margin-bottom:8px}
+.admin-form .form-group input,.admin-form .form-group select{padding:8px;border:1px solid #cfd8db;border-radius:4px}
+.admin-form .form-actions{grid-column:1 / -1;margin-top:12px;display:flex;gap:12px;align-items:center}
+
+@media (max-width:1000px){
+	.admin-form .form-grid{grid-template-columns:repeat(2,1fr)}
+}
+
+@media (max-width:700px){
+	.admin-form .form-grid{grid-template-columns:1fr}
+}
