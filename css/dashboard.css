@@ -37,6 +37,13 @@ body{margin:0;background:var(--light)}
 .welcome-orange{color:var(--orange)}
 .name-blue{color:#1e73be}
 .status-active{color:#1e73be;font-weight:600}
+/* Inactive status: red */
+.status-inactive{color:#d0342a;font-weight:600}
+/* Leave status styles for employee dashboard */
+.status-pending{color:#d0342a;font-weight:600}
+.status-forwarded{color:#1e73be;font-weight:600}
+.status-approved{color:#2e7d32;font-weight:600}
+.status-rejected{color:#d0342a;font-weight:600}
 .employee-card .detail{margin:6px 0;color:var(--muted)}
 .attendance-card .att-actions{display:flex;gap:12px;margin-bottom:12px}
 .btn{background:var(--orange);border:none;color:#fff;padding:10px 14px;border-radius:6px;cursor:pointer}
@@ -74,10 +81,17 @@ body{margin:0;background:var(--light)}
 	overflow:hidden;
 }
 
+/* Thin orange divider under the Leave History table header */
+.leave-history table thead th{border-bottom:1px solid var(--orange);padding-bottom:8px}
+
 /* thin orange dividers between inner rows */
 .leave-history tbody tr + tr td{
 	border-top:1px solid var(--orange);
 }
+
+/* Action links in user management: make Edit / Toggle Status orange */
+.leave-history table.users td a.action-orange{color:var(--orange);font-weight:600;text-decoration:none}
+.leave-history table.users td a.action-orange:hover{text-decoration:underline}
 .stats-card .stat-items{display:flex;gap:12px;flex-wrap:wrap}
 .stat{flex:1;padding:10px;background:#f7fbfc;border-radius:6px}
 .stat .big{font-size:20px;color:var(--orange);font-weight:700;margin-top:8px}

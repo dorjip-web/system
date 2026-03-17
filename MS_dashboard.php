@@ -379,7 +379,22 @@ Reject
 
 <td><?= htmlspecialchars($r['leave_name']); ?></td>
 
-<td><?= ucfirst(htmlspecialchars($r['medical_superintendent_status'])); ?></td>
+<td>
+    <?php
+        $s = strtolower(trim($r['medical_superintendent_status'] ?? ''));
+        if ($s === 'pending') {
+            echo '<span class="status-pending">' . htmlspecialchars(ucfirst($s)) . '</span>';
+        } elseif ($s === 'forwarded') {
+            echo '<span class="status-forwarded">' . htmlspecialchars(ucfirst($s)) . '</span>';
+        } elseif ($s === 'approved') {
+            echo '<span class="status-approved">' . htmlspecialchars(ucfirst($s)) . '</span>';
+        } elseif ($s === 'rejected') {
+            echo '<span class="status-rejected">' . htmlspecialchars(ucfirst($s)) . '</span>';
+        } else {
+            echo htmlspecialchars($r['medical_superintendent_status']);
+        }
+    ?>
+</td>
 
 <td><?= date('d M', strtotime($r['medical_superintendent_action_at'])); ?></td>
 

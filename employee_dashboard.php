@@ -512,8 +512,48 @@ if (!empty($_SESSION['attendance'][$today]['morning']) && empty($_SESSION['atten
                                         <td><?php echo htmlspecialchars($lv['reason']); ?></td>
                                         <td><?php echo htmlspecialchars($lv['days']); ?></td>
                                         <td><?php echo htmlspecialchars($hod_name); ?></td>
-                                        <td><?php echo htmlspecialchars($lv['hod_status'] ?? '-'); ?></td>
-                                        <td><?php echo htmlspecialchars($lv['ms_status'] ?? '-'); ?></td>
+                                        <td>
+                                            <?php
+                                                $hod_s = trim($lv['hod_status'] ?? '');
+                                                $hod_l = strtolower($hod_s);
+                                                if ($hod_l === 'pending') {
+                                                    $disp = ucfirst($hod_l);
+                                                    echo '<span class="status-pending">' . htmlspecialchars($disp) . '</span>';
+                                                } elseif ($hod_l === 'forwarded') {
+                                                    $disp = ucfirst($hod_l);
+                                                    echo '<span class="status-forwarded">' . htmlspecialchars($disp) . '</span>';
+                                                } elseif ($hod_l === 'approved') {
+                                                    $disp = ucfirst($hod_l);
+                                                    echo '<span class="status-approved">' . htmlspecialchars($disp) . '</span>';
+                                                } elseif ($hod_l === 'rejected') {
+                                                    $disp = ucfirst($hod_l);
+                                                    echo '<span class="status-rejected">' . htmlspecialchars($disp) . '</span>';
+                                                } else {
+                                                    echo htmlspecialchars($hod_s ?: '-');
+                                                }
+                                            ?>
+                                        </td>
+                                        <td>
+                                            <?php
+                                                $ms_s = trim($lv['ms_status'] ?? '');
+                                                $ms_l = strtolower($ms_s);
+                                                if ($ms_l === 'pending') {
+                                                    $disp = ucfirst($ms_l);
+                                                    echo '<span class="status-pending">' . htmlspecialchars($disp) . '</span>';
+                                                } elseif ($ms_l === 'forwarded') {
+                                                    $disp = ucfirst($ms_l);
+                                                    echo '<span class="status-forwarded">' . htmlspecialchars($disp) . '</span>';
+                                                } elseif ($ms_l === 'approved') {
+                                                    $disp = ucfirst($ms_l);
+                                                    echo '<span class="status-approved">' . htmlspecialchars($disp) . '</span>';
+                                                } elseif ($ms_l === 'rejected') {
+                                                    $disp = ucfirst($ms_l);
+                                                    echo '<span class="status-rejected">' . htmlspecialchars($disp) . '</span>';
+                                                } else {
+                                                    echo htmlspecialchars($ms_s ?: '-');
+                                                }
+                                            ?>
+                                        </td>
                                     </tr>
                                 <?php endforeach; ?>
                             <?php else: ?>

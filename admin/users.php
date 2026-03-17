@@ -112,10 +112,22 @@ $username = $_SESSION['username'] ?? 'NTMH';
 					<td><?php echo htmlspecialchars($row['designation'] ?? ''); ?></td>
 					<td><?php echo htmlspecialchars($row['department_name'] ?? ''); ?></td>
 					<td><?php echo htmlspecialchars($row['role_name'] ?? ''); ?></td>
-					<td><?php echo htmlspecialchars($row['status']); ?></td>
 					<td>
-						<a href="edit_user.php?id=<?php echo $row['employee_id']; ?>">Edit</a> |
-						<a href="toggle_user_status.php?id=<?php echo $row['employee_id']; ?>">Toggle Status</a>
+						<?php
+						$status = trim($row['status'] ?? '');
+						$lower = strtolower($status);
+						if ($lower === 'active') {
+							echo '<span class="status-active">' . htmlspecialchars($status) . '</span>';
+						} elseif ($lower === 'inactive') {
+							echo '<span class="status-inactive">' . htmlspecialchars($status) . '</span>';
+						} else {
+							echo htmlspecialchars($status);
+						}
+						?>
+					</td>
+					<td>
+						<a class="action-orange" href="edit_user.php?id=<?php echo $row['employee_id']; ?>">Edit</a> |
+						<a class="action-orange" href="toggle_user_status.php?id=<?php echo $row['employee_id']; ?>">Toggle Status</a>
 					</td>
 				</tr>
 				<?php endforeach; ?>

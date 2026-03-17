@@ -256,7 +256,22 @@ foreach ($recent_rows as $rr) {
                     <tr>
                         <td><?=htmlspecialchars($r['employee']);?></td>
                         <td><?=htmlspecialchars($r['leave']);?></td>
-                        <td><?=htmlspecialchars($r['action']);?></td>
+                        <td>
+                            <?php
+                                $act = strtolower(trim($r['action'] ?? ''));
+                                if ($act === 'pending') {
+                                    echo '<span class="status-pending">' . htmlspecialchars(ucfirst($act)) . '</span>';
+                                } elseif ($act === 'forwarded') {
+                                    echo '<span class="status-forwarded">' . htmlspecialchars(ucfirst($act)) . '</span>';
+                                } elseif ($act === 'approved') {
+                                    echo '<span class="status-approved">' . htmlspecialchars(ucfirst($act)) . '</span>';
+                                } elseif ($act === 'rejected') {
+                                    echo '<span class="status-rejected">' . htmlspecialchars(ucfirst($act)) . '</span>';
+                                } else {
+                                    echo htmlspecialchars($r['action']);
+                                }
+                            ?>
+                        </td>
                         <td><?=htmlspecialchars(date('d M', strtotime($r['date'])));?></td>
                     </tr>
                 <?php endforeach; ?>
