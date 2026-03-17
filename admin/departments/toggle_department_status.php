@@ -1,5 +1,5 @@
 <?php
-include __DIR__ . '/../database/database.php';
+include __DIR__ . '/../../database/database.php';
 
 if (empty($conn)) {
     header('Location: departments.php');

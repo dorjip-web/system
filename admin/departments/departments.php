@@ -1,5 +1,5 @@
 <?php
-include __DIR__ . '/../database/database.php';
+include __DIR__ . '/../../database/database.php';
 
 if (empty($conn)) {
     echo '<p>Database connection not available.</p>';
@@ -28,7 +28,7 @@ LEFT JOIN tab1 u
 }
 
 if (session_status() === PHP_SESSION_NONE) session_start();
-$username = $_SESSION['username'] ?? 'NTMH';
+$username = 'NTMH';
 ?>
 
 <!doctype html>
@@ -37,7 +37,7 @@ $username = $_SESSION['username'] ?? 'NTMH';
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Admin - Departments</title>
-    <link rel="stylesheet" href="../css/dashboard.css">
+    <link rel="stylesheet" href="../../css/dashboard.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -48,28 +48,28 @@ $username = $_SESSION['username'] ?? 'NTMH';
             <div class="username"><?php echo htmlspecialchars($username); ?></div>
         </div>
         <nav class="menu">
-            <a href="../admin_dashboard.php">Admin Dashboard</a>
+            <a href="../../admin_dashboard.php">Admin Dashboard</a>
             <div class="menu-item">
-                <a href="users.php" <?php if(basename($_SERVER['PHP_SELF']) === 'users.php') echo 'class="active"'; ?>>User Management</a>
+                <a href="../users/users.php" <?php if(basename($_SERVER['PHP_SELF']) === 'users.php') echo 'class="active"'; ?>>User Management</a>
                 <div class="submenu">
-                    <a href="add_user.php">➕ Add New User</a>
+                    <a href="../users/add_user.php">➕ Add New User</a>
                 </div>
             </div>
             <a href="departments.php" <?php if(basename($_SERVER['PHP_SELF']) === 'departments.php') echo 'class="active"'; ?>>Department &amp; HoD Management</a>
-            <a href="roles_permissions.php" <?php if(basename($_SERVER['PHP_SELF']) === 'roles_permissions.php') echo 'class="active"'; ?>>Roles &amp; Permissions</a>
-            <a href="leave_types.php" <?php if(basename($_SERVER['PHP_SELF']) === 'leave_types.php') echo 'class="active"'; ?>>Leave Types</a>
-            <a href="leave_balance.php" <?php if(basename($_SERVER['PHP_SELF']) === 'leave_balance.php') echo 'class="active"'; ?>>Leave Balance</a>
-            <a href="attendance_logs.php" <?php if(basename($_SERVER['PHP_SELF']) === 'attendance_logs.php') echo 'class="active"'; ?>>Attendance Logs</a>
-            <a href="leave_records.php" <?php if(basename($_SERVER['PHP_SELF']) === 'leave_records.php') echo 'class="active"'; ?>>Leave Records</a>
-            <a href="reports.php" <?php if(basename($_SERVER['PHP_SELF']) === 'reports.php') echo 'class="active"'; ?>>Reports</a>
-            <a href="settings.php" <?php if(basename($_SERVER['PHP_SELF']) === 'settings.php') echo 'class="active"'; ?>>Settings</a>
+            <a href="../roles_permissions.php" <?php if(basename($_SERVER['PHP_SELF']) === 'roles_permissions.php') echo 'class="active"'; ?>>Roles &amp; Permissions</a>
+            <a href="../leave_types.php" <?php if(basename($_SERVER['PHP_SELF']) === 'leave_types.php') echo 'class="active"'; ?>>Leave Types</a>
+            <a href="../leave_balance.php" <?php if(basename($_SERVER['PHP_SELF']) === 'leave_balance.php') echo 'class="active"'; ?>>Leave Balance</a>
+            <a href="../attendance_logs.php" <?php if(basename($_SERVER['PHP_SELF']) === 'attendance_logs.php') echo 'class="active"'; ?>>Attendance Logs</a>
+            <a href="../leave_records.php" <?php if(basename($_SERVER['PHP_SELF']) === 'leave_records.php') echo 'class="active"'; ?>>Leave Records</a>
+            <a href="../reports.php" <?php if(basename($_SERVER['PHP_SELF']) === 'reports.php') echo 'class="active"'; ?>>Reports</a>
+            <a href="../settings.php" <?php if(basename($_SERVER['PHP_SELF']) === 'settings.php') echo 'class="active"'; ?>>Settings</a>
         </nav>
     </aside>
 
     <main class="main">
         <header class="topbar">
             <div class="search"> <input placeholder="Search..."> </div>
-            <div class="logout"><a href="../login.php">Logout</a></div>
+            <div class="logout"><a href="../../login.php">Logout</a></div>
         </header>
 
         <section>

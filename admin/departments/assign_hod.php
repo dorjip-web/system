@@ -1,5 +1,5 @@
 <?php
-include __DIR__ . '/../database/database.php';
+include __DIR__ . '/../../database/database.php';
 
 if (empty($conn)) {
     echo '<p>Database connection not available.</p>';
@@ -101,7 +101,7 @@ if (isset($_GET['ajax']) && $_GET['ajax'] == '1') {
 <head>
     <meta charset="utf-8">
     <title>Assign HoD</title>
-    <link rel="stylesheet" href="../css/dashboard.css">
+    <link rel="stylesheet" href="../../css/dashboard.css">
 </head>
 <body style="padding:18px;font-family:Inter,Arial,Helvetica,sans-serif">
 

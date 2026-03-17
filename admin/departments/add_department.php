@@ -1,5 +1,5 @@
 <?php
-include __DIR__ . '/../database/database.php';
+include __DIR__ . '/../../database/database.php';
 
 $error = '';
 if (isset($_POST['submit'])) {
@@ -35,7 +35,7 @@ if (isset($_POST['submit'])) {
 <head>
     <meta charset="utf-8">
     <title>Add Department</title>
-    <link rel="stylesheet" href="../css/dashboard.css">
+    <link rel="stylesheet" href="../../css/dashboard.css">
 </head>
 <body style="padding:18px;font-family:Inter,Arial,Helvetica,sans-serif">
 

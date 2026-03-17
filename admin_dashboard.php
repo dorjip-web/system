@@ -31,8 +31,8 @@ $username = 'NTMH';
         </div>
         <nav class="menu">
             <a href="admin_dashboard.php" class="active">Admin Dashboard</a>
-            <a href="admin/users.php">User Management</a>
-            <a href="admin/departments.php">Department &amp; HoD Management</a>
+            <a href="admin/users/users.php">User Management</a>
+            <a href="admin/departments/departments.php">Department &amp; HoD Management</a>
             <a href="roles_permissions.php">Roles & Permissions</a>
             <a href="leave_types.php">Leave Types</a>
             <a href="leave_balance.php">Leave Balance</a>
@@ -71,7 +71,7 @@ $username = 'NTMH';
             <div class="card">
                 <h3>Quick Actions</h3>
                 <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px">
-                    <a class="btn" href="admin/users.php">Manage Users</a>
+                    <a class="btn" href="admin/users/users.php">Manage Users</a>
                     <a class="btn" href="manage_departments.php">Manage Departments</a>
                     <a class="btn" href="manage_leave_types.php">Leave Types</a>
                     <a class="btn" href="reports.php">Reports</a>

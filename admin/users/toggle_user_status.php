@@ -1,5 +1,5 @@
 <?php
-include '../database/database.php';
+include __DIR__ . '/../../database/database.php';
 
 if(isset($_GET['id'])){
 
