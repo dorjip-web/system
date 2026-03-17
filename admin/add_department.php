@@ -10,10 +10,21 @@ if (isset($_POST['submit'])) {
         try {
             $stmt = $conn->prepare('INSERT INTO department (department_name, status) VALUES (:name, :status)');
             $stmt->execute([':name' => $department_name, ':status' => 'active']);
+            $newId = $conn->lastInsertId();
+            if (isset($_POST['ajax']) && $_POST['ajax'] == '1') {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => true, 'department_id' => (int)$newId, 'department_name' => $department_name, 'status' => 'active']);
+                exit;
+            }
             header('Location: departments.php');
             exit;
         } catch (Exception $e) {
             $error = 'Database error: ' . $e->getMessage();
+            if (isset($_POST['ajax']) && $_POST['ajax'] == '1') {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'error' => $error]);
+                exit;
+            }
         }
     }
 }

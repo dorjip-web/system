@@ -38,6 +38,11 @@ if (isset($_POST['submit'])) {
         try {
             $update = $conn->prepare('UPDATE department SET department_name = :name, status = :status WHERE department_id = :id');
             $update->execute([':name' => $department_name, ':status' => $status, ':id' => $department_id]);
+            if (isset($_POST['ajax']) && $_POST['ajax'] == '1') {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => true, 'department_id' => $department_id, 'department_name' => $department_name, 'status' => $status]);
+                exit;
+            }
             header('Location: departments.php');
             exit;
         } catch (Exception $e) {
@@ -45,6 +50,17 @@ if (isset($_POST['submit'])) {
             error_log('edit_department.php update: ' . $e->getMessage());
         }
     }
+}
+
+// Provide JSON response for AJAX GET requests to fetch department data
+if (isset($_GET['ajax']) && $_GET['ajax'] == '1') {
+    header('Content-Type: application/json');
+    if ($department) {
+        echo json_encode(['success' => true, 'department' => ['department_id' => (int)$department['department_id'], 'department_name' => $department['department_name'], 'status' => $department['status']]]);
+    } else {
+        echo json_encode(['success' => false, 'error' => 'Department not found']);
+    }
+    exit;
 }
 ?>
 

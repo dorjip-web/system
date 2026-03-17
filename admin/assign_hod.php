@@ -68,6 +68,11 @@ if (isset($_POST['submit'])) {
                 $insert->execute([':dept' => $department_id, ':emp' => $employee_id]);
             }
 
+            if (isset($_POST['ajax']) && $_POST['ajax'] == '1') {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => true, 'department_id' => $department_id, 'employee_id' => $employee_id]);
+                exit;
+            }
             header('Location: departments.php');
             exit;
         } catch (Exception $e) {
@@ -75,6 +80,19 @@ if (isset($_POST['submit'])) {
             error_log('assign_hod.php submit: ' . $e->getMessage());
         }
     }
+}
+
+// Support AJAX GET to return employees and current hod info
+if (isset($_GET['ajax']) && $_GET['ajax'] == '1') {
+    header('Content-Type: application/json');
+    try {
+        $empStmt = $conn->query("SELECT employee_id, employee_name FROM tab1 ORDER BY employee_name ASC");
+        $employees = $empStmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (Exception $e) {
+        $employees = [];
+    }
+    echo json_encode(['success' => true, 'department' => ['department_id' => (int)$department['department_id'], 'department_name' => $department['department_name']], 'current_hod_id' => $current_hod_id, 'employees' => $employees]);
+    exit;
 }
 ?>
 
