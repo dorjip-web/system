@@ -14,7 +14,7 @@ if ($department_id <= 0) {
 
 // Fetch department info
 try {
-    $deptStmt = $conn->prepare('SELECT * FROM departments WHERE department_id = :id LIMIT 1');
+    $deptStmt = $conn->prepare('SELECT * FROM department WHERE department_id = :id LIMIT 1');
     $deptStmt->execute([':id' => $department_id]);
     $department = $deptStmt->fetch(PDO::FETCH_ASSOC);
 } catch (Exception $e) {
