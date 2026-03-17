@@ -69,7 +69,7 @@ $username = $_SESSION['username'] ?? 'NTMH';
                     <a href="add_user.php">➕ Add New User</a>
                 </div>
             </div>
-            <a href="department_management.php" <?php if(basename($_SERVER['PHP_SELF']) === 'department_management.php') echo 'class="active"'; ?>>Department &amp; HoD Management</a>
+            <a href="departments.php" <?php if(basename($_SERVER['PHP_SELF']) === 'departments.php') echo 'class="active"'; ?>>Department &amp; HoD Management</a>
             <a href="roles_permissions.php" <?php if(basename($_SERVER['PHP_SELF']) === 'roles_permissions.php') echo 'class="active"'; ?>>Roles & Permissions</a>
             <a href="leave_types.php" <?php if(basename($_SERVER['PHP_SELF']) === 'leave_types.php') echo 'class="active"'; ?>>Leave Types</a>
             <a href="leave_balance.php" <?php if(basename($_SERVER['PHP_SELF']) === 'leave_balance.php') echo 'class="active"'; ?>>Leave Balance</a>

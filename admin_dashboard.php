@@ -32,7 +32,7 @@ $username = 'NTMH';
         <nav class="menu">
             <a href="admin_dashboard.php" class="active">Admin Dashboard</a>
             <a href="admin/users.php">User Management</a>
-            <a href="department_management.php">Department &amp; HoD Management</a>
+            <a href="admin/departments.php">Department &amp; HoD Management</a>
             <a href="roles_permissions.php">Roles & Permissions</a>
             <a href="leave_types.php">Leave Types</a>
             <a href="leave_balance.php">Leave Balance</a>
