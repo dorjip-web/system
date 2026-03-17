@@ -13,7 +13,7 @@ SELECT
 	d.department_name,
 	d.status,
 	u.employee_name AS hod_name
-FROM departments d
+FROM department d
 LEFT JOIN department_hod m 
 	ON d.department_id = m.department_id
 LEFT JOIN tab1 u 

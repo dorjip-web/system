@@ -8,7 +8,7 @@ if (isset($_POST['submit'])) {
         $error = 'Department name is required.';
     } else {
         try {
-            $stmt = $conn->prepare('INSERT INTO departments (department_name, status) VALUES (:name, :status)');
+            $stmt = $conn->prepare('INSERT INTO department (department_name, status) VALUES (:name, :status)');
             $stmt->execute([':name' => $department_name, ':status' => 'active']);
             header('Location: departments.php');
             exit;
