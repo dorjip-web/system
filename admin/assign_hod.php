@@ -27,10 +27,20 @@ if (!$department) {
     exit;
 }
 
-// Fetch employees with HoD role (role_id = 2) and Active status
+// Fetch current HoD mapping for this department (if any)
 try {
-    $empStmt = $conn->prepare("SELECT employee_id, employee_name FROM tab1 WHERE role_id = :role AND status = :status ORDER BY employee_name ASC");
-    $empStmt->execute([':role' => 2, ':status' => 'Active']);
+    $currStmt = $conn->prepare('SELECT employee_id FROM department_hod WHERE department_id = :dept LIMIT 1');
+    $currStmt->execute([':dept' => $department_id]);
+    $currRow = $currStmt->fetch(PDO::FETCH_ASSOC);
+    $current_hod_id = $currRow ? (int)$currRow['employee_id'] : 0;
+} catch (Exception $e) {
+    error_log('assign_hod.php current hod fetch: ' . $e->getMessage());
+    $current_hod_id = 0;
+}
+
+// Fetch employees (all)
+try {
+    $empStmt = $conn->query("SELECT employee_id, employee_name FROM tab1 ORDER BY employee_name ASC");
     $employees = $empStmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (Exception $e) {
     error_log('assign_hod.php employees fetch: ' . $e->getMessage());
@@ -88,7 +98,7 @@ if (isset($_POST['submit'])) {
     <select name="employee_id" required style="padding:8px;width:320px">
         <option value="">-- Select HoD --</option>
         <?php foreach ($employees as $row): ?>
-            <option value="<?php echo (int)$row['employee_id']; ?>"><?php echo htmlspecialchars($row['employee_name']); ?></option>
+            <option value="<?php echo (int)$row['employee_id']; ?>" <?php echo ((int)$row['employee_id'] === $current_hod_id) ? 'selected' : ''; ?>><?php echo htmlspecialchars($row['employee_name']); ?></option>
         <?php endforeach; ?>
     </select>
 
