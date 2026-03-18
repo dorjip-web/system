@@ -33,7 +33,7 @@ $username = 'NTMH';
             <a href="admin_dashboard.php" class="active">Admin Dashboard</a>
             <a href="admin/users/users.php">User Management</a>
             <a href="admin/departments/departments.php">Department &amp; HoD Management</a>
-            <a href="roles_permissions.php">Roles & Permissions</a>
+            <a href="admin/roles/roles.php">Roles & Permissions</a>
             <a href="leave_types.php">Leave Types</a>
             <a href="leave_balance.php">Leave Balance</a>
             <a href="attendance_logs.php">Attendance Logs</a>

@@ -30,7 +30,7 @@
 				<!-- Right panel (form) -->
 				<div class="bg-[#2b2230] p-8 md:p-12 flex items-center">
 					<div class="w-full max-w-md mx-auto text-white">
-						<h1 class="text-2xl font-bold mb-2">Attendance and Leave System, NTMH</h1>
+						<h1 class="text-2xl font-bold mb-2">NTMH, ALS</h1>
 						<p class="text-sm text-gray-300 mb-6">Welcome back — please enter your username and password.</p>
 
 						<form action="login_process.php" method="post" class="space-y-4">
