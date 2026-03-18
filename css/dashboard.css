@@ -48,6 +48,27 @@ body{margin:0;background:var(--light)}
 .attendance-card .att-actions{display:flex;gap:12px;margin-bottom:12px}
 .btn{background:var(--orange);border:none;color:#fff;padding:10px 14px;border-radius:6px;cursor:pointer}
 .btn[disabled]{opacity:0.5;cursor:not-allowed}
+.leave-form button, .leave-form button[type="submit"], .leave-form .btn {
+	background: var(--orange);
+	border: none;
+	color: #fff;
+	padding: 10px 14px;
+	border-radius: 6px;
+	cursor: pointer;
+	font-weight: 600;
+}
+.leave-form button[disabled]{opacity:0.5;cursor:not-allowed}
+.leave-form button:hover{filter:brightness(0.95)}
+
+.leave-form .btn-cancel{
+	background:#fff;
+	border:1px solid #cfd8db;
+	color:#333;
+	padding:10px 14px;
+	border-radius:6px;
+	cursor:pointer;
+}
+.leave-form .btn-cancel:hover{filter:brightness(0.98)}
 .today-status div{margin:6px 0;color:#333}
 .monthly{margin-top:12px;color:var(--muted)}
 .notifications .note{background:#fff6f0;border-left:4px solid var(--orange);padding:8px;margin:8px 0;border-radius:4px;color:#6b4b2c}
@@ -62,6 +83,10 @@ body{margin:0;background:var(--light)}
 .leave-form .row-grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:12px}
 .leave-form .row-grid-3 .col label{margin-bottom:6px}
 .leave-form .row-grid-3 .col input,.leave-form .row-grid-3 .col select{width:100%}
+
+.leave-form .row-grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:12px}
+.leave-form .row-grid-4 .col label{margin-bottom:6px}
+.leave-form .row-grid-4 .col input,.leave-form .row-grid-4 .col select,.leave-form .row-grid-4 .col textarea{width:100%}
 .leave-history table{width:100%;border-collapse:collapse;border-spacing:0;font-size:13px}
 .leave-history th,.leave-history td{padding:8px;border-bottom:none;text-align:left}
 
