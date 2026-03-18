@@ -144,7 +144,7 @@ function getAssigned($conn, $role_id) {
     <title>Roles & Permissions</title>
     <link rel="stylesheet" href="../../css/dashboard.css">
     <style>
-        .roles-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+        .roles-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;grid-column:1 / -1;width:100%}
         .roles-grid .card{padding:12px}
         .small-link{display:block;margin:6px 0}
     </style>
@@ -194,7 +194,7 @@ function getAssigned($conn, $role_id) {
                 <div style="color:green;margin-bottom:8px"><?php echo htmlspecialchars($message); ?></div>
             <?php endif; ?>
 
-            <div class="card roles-grid" style="grid-template-columns:1fr;">
+            <div class="roles-grid">
                 <div class="card">
                     <h2>Manage Roles</h2>
                     <a class="small-link" href="#add-role">+ Add Role</a>
@@ -227,20 +227,20 @@ function getAssigned($conn, $role_id) {
 
                 <div class="card" id="add-role">
                     <h3><?php echo $edit_role_data ? 'Edit Role' : 'Add Role'; ?></h3>
-                    <form method="POST">
+                    <form method="POST" class="leave-form">
                         <input type="hidden" name="role_id" value="<?php echo $edit_role_data ? (int)$edit_role_data['role_id'] : 0; ?>">
-                        <div>
-                            <label>Role Name</label><br>
-                            <input type="text" name="role_name" required value="<?php echo $edit_role_data ? htmlspecialchars($edit_role_data['role_name']) : ''; ?>" style="padding:8px;width:100%">
+                        <div class="row">
+                            <label>Role Name</label>
+                            <input type="text" name="role_name" required value="<?php echo $edit_role_data ? htmlspecialchars($edit_role_data['role_name']) : ''; ?>">
                         </div>
-                        <div style="margin-top:8px">
-                            <label>Status</label><br>
+                        <div class="row" style="margin-top:8px">
+                            <label>Status</label>
                             <select name="status">
                                 <option value="active" <?php if (($edit_role_data['status'] ?? '') === 'active') echo 'selected'; ?>>Active</option>
                                 <option value="inactive" <?php if (($edit_role_data['status'] ?? '') === 'inactive') echo 'selected'; ?>>Inactive</option>
                             </select>
                         </div>
-                        <div style="margin-top:8px">
+                        <div class="row" style="margin-top:8px">
                             <button type="submit" name="save_role" class="btn"><?php echo $edit_role_data ? 'Update' : 'Save'; ?></button>
                             <a href="/attendanceleave/admin/roles/roles.php" class="btn" style="background:#fff;color:#333;border:1px solid #cfd8db;margin-left:8px">Cancel</a>
                         </div>
@@ -277,20 +277,20 @@ function getAssigned($conn, $role_id) {
 
                 <div class="card" id="add-perm">
                     <h3><?php echo $edit_perm_data ? 'Edit Permission' : 'Add Permission'; ?></h3>
-                    <form method="POST">
+                    <form method="POST" class="leave-form">
                         <input type="hidden" name="perm_id" value="<?php echo $edit_perm_data ? (int)$edit_perm_data['permission_id'] : 0; ?>">
-                        <div>
-                            <label>Permission Name</label><br>
-                            <input type="text" name="permission_name" required value="<?php echo $edit_perm_data ? htmlspecialchars($edit_perm_data['permission_name']) : ''; ?>" style="padding:8px;width:100%">
+                        <div class="row">
+                            <label>Permission Name</label>
+                            <input type="text" name="permission_name" required value="<?php echo $edit_perm_data ? htmlspecialchars($edit_perm_data['permission_name']) : ''; ?>">
                         </div>
-                        <div style="margin-top:8px">
-                            <label>Status</label><br>
+                        <div class="row" style="margin-top:8px">
+                            <label>Status</label>
                             <select name="pstatus">
                                 <option value="active" <?php if (($edit_perm_data['status'] ?? '') === 'active') echo 'selected'; ?>>Active</option>
                                 <option value="inactive" <?php if (($edit_perm_data['status'] ?? '') === 'inactive') echo 'selected'; ?>>Inactive</option>
                             </select>
                         </div>
-                        <div style="margin-top:8px">
+                        <div class="row" style="margin-top:8px">
                             <button type="submit" name="save_perm" class="btn"><?php echo $edit_perm_data ? 'Update' : 'Save'; ?></button>
                             <a href="/attendanceleave/admin/roles/roles.php" class="btn" style="background:#fff;color:#333;border:1px solid #cfd8db;margin-left:8px">Cancel</a>
                         </div>
@@ -299,9 +299,9 @@ function getAssigned($conn, $role_id) {
 
                 <div class="card">
                     <h2>Assign Permissions</h2>
-                    <form method="POST">
-                        <div>
-                            <label>Select Role</label><br>
+                    <form method="POST" class="leave-form">
+                        <div class="row">
+                            <label>Select Role</label>
                             <select name="assign_role_id" id="assign_role_id">
                                 <option value="">-- Select Role --</option>
                                 <?php foreach ($roles as $r): ?>
@@ -310,33 +310,33 @@ function getAssigned($conn, $role_id) {
                             </select>
                         </div>
 
-                        <div style="margin-top:8px">
+                        <div class="row" style="margin-top:8px">
                             <label>Permissions</label>
-                            <div class="leave-history" style="margin-top:8px">
-                                <div class="table-wrap">
-                                    <table class="users">
-                                        <thead>
-                                            <tr><th></th><th>Permission</th><th>Status</th></tr>
-                                        </thead>
-                                        <tbody>
-                                            <?php if (count($perms) === 0): ?>
-                                                <tr><td colspan="3">No permissions available.</td></tr>
-                                            <?php else: ?>
-                                                <?php foreach ($perms as $p): ?>
-                                                    <tr>
-                                                        <td style="width:40px"><input type="checkbox" name="assign_permissions[]" value="<?php echo (int)$p['permission_id']; ?>"></td>
-                                                        <td><?php echo htmlspecialchars($p['permission_name']); ?></td>
-                                                        <td><?php echo htmlspecialchars($p['status']); ?></td>
-                                                    </tr>
-                                                <?php endforeach; ?>
-                                            <?php endif; ?>
-                                        </tbody>
-                                    </table>
-                                </div>
+                        </div>
+                        <div class="leave-history" style="margin-top:8px">
+                            <div class="table-wrap">
+                                <table class="users">
+                                    <thead>
+                                        <tr><th></th><th>Permission</th><th>Status</th></tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php if (count($perms) === 0): ?>
+                                            <tr><td colspan="3">No permissions available.</td></tr>
+                                        <?php else: ?>
+                                            <?php foreach ($perms as $p): ?>
+                                                <tr>
+                                                    <td style="width:40px"><input type="checkbox" name="assign_permissions[]" value="<?php echo (int)$p['permission_id']; ?>"></td>
+                                                    <td><?php echo htmlspecialchars($p['permission_name']); ?></td>
+                                                    <td><?php echo htmlspecialchars($p['status']); ?></td>
+                                                </tr>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
 
-                        <div style="margin-top:8px">
+                        <div class="row" style="margin-top:8px">
                             <button type="submit" name="save_assign" class="btn">Save Assignments</button>
                         </div>
                     </form>
