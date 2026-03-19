@@ -166,7 +166,7 @@ function getAssigned($conn, $role_id) {
             <a href="/attendanceleave/admin/departments/departments.php">Department & HoD Management</a>
             <a href="/attendanceleave/admin/roles/roles.php" class="active">Roles & Permissions</a>
             <a href="/attendanceleave/admin/leave_types/index.php">Leave Types</a>
-            <a href="/attendanceleave/leave_balance.php">Leave Balance</a>
+            <a href="/attendanceleave/admin/leave_balances/leave_balance.php">Leave Balance</a>
             <a href="/attendanceleave/attendance_logs.php">Attendance Logs</a>
             <a href="/attendanceleave/leave_records.php">Leave Records</a>
             <a href="/attendanceleave/reports.php">Reports</a>

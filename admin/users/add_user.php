@@ -54,7 +54,7 @@ $username = 'NTMH';
             <a href="../departments/departments.php" <?php if(basename($_SERVER['PHP_SELF']) === 'departments.php') echo 'class="active"'; ?>>Department &amp; HoD Management</a>
             <a href="../roles/roles.php" <?php if(basename($_SERVER['PHP_SELF']) === 'roles.php') echo 'class="active"'; ?>>Roles & Permissions</a>
             <a href="../leave_types/index.php" <?php if(basename($_SERVER['PHP_SELF']) === 'index.php' && basename(dirname($_SERVER['PHP_SELF'])) === 'leave_types') echo 'class="active"'; ?>>Leave Types</a>
-            <a href="../leave_balance.php" <?php if(basename($_SERVER['PHP_SELF']) === 'leave_balance.php') echo 'class="active"'; ?>>Leave Balance</a>
+            <a href="../leave_balances/leave_balance.php" <?php if(basename($_SERVER['PHP_SELF']) === 'leave_balance.php') echo 'class="active"'; ?>>Leave Balance</a>
             <a href="../attendance_logs.php" <?php if(basename($_SERVER['PHP_SELF']) === 'attendance_logs.php') echo 'class="active"'; ?>>Attendance Logs</a>
             <a href="../leave_records.php" <?php if(basename($_SERVER['PHP_SELF']) === 'leave_records.php') echo 'class="active"'; ?>>Leave Records</a>
             <a href="../reports.php" <?php if(basename($_SERVER['PHP_SELF']) === 'reports.php') echo 'class="active"'; ?>>Reports</a>

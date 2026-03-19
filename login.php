@@ -13,7 +13,7 @@
 			<div class="w-full max-w-6xl rounded-2xl overflow-hidden shadow-2xl grid grid-cols-1 md:grid-cols-2">
 				<!-- Left panel -->
 				<div class="relative hidden md:block">
-					<div class="absolute inset-0 bg-cover bg-center" style="background-image: url('images/left-panel.jpg.jpeg');"></div>
+					<div class="absolute inset-0 bg-cover bg-center" style="background-image: url('/images/left-panel.jpg.jpeg');"></div>
 					<!-- subtle tint to harmonize with right panel -->
 					<div class="absolute inset-0 left-tint pointer-events-none"></div>
 					<div class="relative z-10 h-full p-8 flex flex-col justify-between text-white">
@@ -28,7 +28,7 @@
 				</div>
 
 				<!-- Right panel (form) -->
-				<div class="bg-[#2b2230] p-8 md:p-12 flex items-center">
+				<div class="bg-[#20204D] p-8 md:p-12 flex items-center">
 					<div class="w-full max-w-md mx-auto text-white">
 						<h1 class="text-2xl font-bold mb-2">NTMH, ALS</h1>
 						<p class="text-sm text-gray-300 mb-6">Welcome back — please enter your username and password.</p>
@@ -36,12 +36,12 @@
 						<form action="login_process.php" method="post" class="space-y-4">
 							<div>
 								<label class="block text-sm text-gray-300 mb-2">Username</label>
-								<input name="username" type="text" required class="w-full px-4 py-3 rounded bg-[#3b3340] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Enter your username">
+								<input name="username" type="text" required class="w-full px-4 py-3 rounded bg-[#213683] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Enter your username">
 							</div>
 							<div>
 								<label class="block text-sm text-gray-300 mb-2">Password</label>
 								<div class="relative">
-									<input name="password" type="password" required class="w-full px-4 py-3 rounded bg-[#3b3340] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Enter your password">
+									<input name="password" type="password" required class="w-full px-4 py-3 rounded bg-[#213683] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Enter your password">
 									<button type="button" class="absolute right-3 top-3 text-gray-400" aria-label="toggle password visibility">👁️</button>
 								</div>
 							</div>
