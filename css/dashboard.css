@@ -15,7 +15,7 @@ body{margin:0;background:var(--light)}
 .topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;background:var(--orange);color:#fff;padding:12px 16px;border-radius:8px}
 .topbar .search input{width:560px;padding:10px 14px;border-radius:24px;border:2px solid rgba(255,255,255,0.6);background:rgba(255,255,255,0.95);outline:none}
 .topbar .logout a{background:#fff;padding:8px 12px;border-radius:6px;text-decoration:none;color:var(--orange);font-weight:600}
-.grid{display:grid;grid-template-columns:repeat(2,minmax(300px,1fr));grid-auto-rows:auto;gap:20px;align-items:start}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(300px,1fr));grid-auto-rows:auto;gap:20px;align-items:stretch}
 
 /* Place employee + attendance in first row, leave spans full width below */
 .grid > .employee-card{grid-column:1}
@@ -146,3 +146,26 @@ body{margin:0;background:var(--light)}
 @media (max-width:700px){
 	.admin-form .form-grid{grid-template-columns:1fr}
 }
+
+/* Minimal scoped styles for attendance card (keeps impact local) */
+.attendance-card{--att-accent:#ff8a00;--att-green:#14b866;padding:18px}
+.attendance-card h3{font-size:22px;margin:0 0 6px;color:var(--dark)}
+.attendance-card .attendance-subtitle{color:#6b7280;margin:0 0 12px;font-size:14px}
+.attendance-card .att-actions{display:flex;justify-content:space-between;align-items:center;gap:18px;margin:0 auto 16px;max-width:640px}
+.attendance-card .att-actions .btn{background:var(--orange);color:#fff;border-radius:12px;padding:8px 36px;border:none;box-shadow:0 6px 12px rgba(0,0,0,0.10);font-weight:700;font-size:16px;min-width:210px;text-align:center}
+.attendance-card .att-actions .btn:hover{filter:brightness(0.95)}
+.attendance-card .att-actions .btn[disabled]{opacity:0.6;box-shadow:none}
+.attendance-card .status-box{background:#f4fff6;border:1px solid #cfeedd;padding:16px;border-radius:12px;display:flex;gap:12px;align-items:flex-start;margin-bottom:12px}
+.attendance-card .status-box .icon{color:var(--att-green);flex:0 0 36px}
+.attendance-card .status-box .status-title{font-weight:700;color:var(--att-green);margin-bottom:6px}
+.attendance-card .status-box .time-line{display:flex;align-items:center;gap:8px;color:#163d2f}
+.attendance-card .timeline{margin:12px 0}
+.attendance-card .timeline .title{font-weight:600;margin-bottom:8px}
+.attendance-card .timeline .bar{height:10px;background:#eef7f0;border-radius:999px;position:relative;overflow:hidden}
+.attendance-card .timeline .bar .fill{position:absolute;left:0;top:0;height:100%;background:var(--att-green);border-radius:999px;width:0}
+.attendance-card .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:14px 0}
+.attendance-card .stat{background:#fbfdff;padding:14px;border-radius:12px;text-align:center}
+.attendance-card .stat .num{font-size:20px;font-weight:700;color:var(--att-green);margin-bottom:6px}
+.attendance-card .reminder{background:linear-gradient(90deg, rgba(255,244,238,1) 0%, rgba(255,249,241,1) 100%);padding:12px 16px 12px 22px;border-radius:12px;color:#8a3e14;position:relative;font-size:15px}
+.attendance-card .reminder:before{content:'';position:absolute;left:0;top:0;bottom:0;width:10px;background:var(--att-accent);border-top-left-radius:12px;border-bottom-left-radius:12px;box-shadow:2px 0 0 rgba(0,0,0,0.02)}
+

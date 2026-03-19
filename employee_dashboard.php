@@ -307,14 +307,15 @@ if (!empty($employee_id)) {
     );
     $sumStmt->execute([$employee_id, $startOfMonth, $endOfMonth]);
     $res = $sumStmt->fetch(PDO::FETCH_ASSOC) ?: [];
-    $monthly['days'] = (int)($res['days'] ?? 0);
+    $monthly['day'] = (int)($res['day'] ?? 0);
     $monthly['morning'] = (int)($res['morning'] ?? 0);
     $monthly['evening'] = (int)($res['evening'] ?? 0);
 }
 
+// Build reminders from the DB-derived attendance flags (avoid relying on session state)
 $notifications = [];
-if (empty($_SESSION['attendance'][$today]['morning'])) {
-    $notifications[] = 'Reminder: Please check-in for morning.';
+if (empty($hasMorning)) {
+    $notifications[] = 'Reminder: Please check-in.';
 }
 // compute avatar initials from employee name or username
 $fullName = $employee['employee_name'] ?? $employee['name'] ?? $_SESSION['username'] ?? '';
@@ -327,8 +328,8 @@ if ($fullName !== '') {
         $initials = strtoupper(substr($parts[0], 0, 1) . substr($parts[1], 0, 1));
     }
 }
-if (!empty($_SESSION['attendance'][$today]['morning']) && empty($_SESSION['attendance'][$today]['evening'])) {
-    $notifications[] = 'Reminder: Evening check-out pending.';
+if (!empty($hasMorning) && empty($hasEvening)) {
+    $notifications[] = 'Reminder: Your check-out is Pending.';
 }
 ?>
 <!doctype html>
@@ -411,83 +412,62 @@ if (!empty($_SESSION['attendance'][$today]['morning']) && empty($_SESSION['atten
 
             <div id="attendance" class="card attendance-card">
                 <h3>Attendance</h3>
+                <p class="attendance-subtitle">Track your daily activity</p>
+
+                <?php
+                    // helper to format times nicely
+                    function fmt_time($ts) {
+                        if (empty($ts)) return '';
+                        $dt = DateTime::createFromFormat('Y-m-d H:i:s', $ts, new DateTimeZone('Asia/Thimphu'));
+                        if ($dt === false) {
+                            try { $dt = new DateTime($ts); $dt->setTimezone(new DateTimeZone('Asia/Thimphu')); } catch (Exception $e) { $dt = null; }
+                        }
+                        return $dt ? $dt->format('h:i A') : date('h:i A', strtotime($ts));
+                    }
+
+                    $checkin_disp = !empty($attendanceToday['checkin_time']) ? fmt_time($attendanceToday['checkin_time']) : '';
+                    $checkout_disp = !empty($attendanceToday['checkout_time']) ? fmt_time($attendanceToday['checkout_time']) : '';
+                    $fill = 0; if ($checkin_disp && $checkout_disp) $fill = 100; elseif ($checkin_disp) $fill = 60;
+                ?>
+
                 <div class="att-actions">
-                    <div style="display:inline">
-                        <button type="button" id="btn-checkin" class="btn" <?php echo ($hasMorning ?? false) ? 'disabled' : ''; ?>>Check-in</button>
+                    <button type="button" id="btn-checkin" class="btn" <?php echo ($hasMorning ?? false) ? 'disabled' : ''; ?>>Check-in</button>
+                    <button type="button" id="btn-checkout" class="btn checkout" <?php echo (!($hasMorning ?? false) || ($hasEvening ?? false)) ? 'disabled' : ''; ?>>Check-out</button>
+                </div>
+
+                <div class="status-box">
+                    <div class="icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" width="28" height="28" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" fill="none" /><?php if ($fill === 100) echo '<path d="M8.5 12.5l2 2 5-5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none" />'; ?></svg>
                     </div>
-
-                    <div style="display:inline">
-                        <button type="button" id="btn-checkout" class="btn" <?php echo (!($hasMorning ?? false) || ($hasEvening ?? false)) ? 'disabled' : ''; ?>>Check-out</button>
+                    <div>
+                        <div class="status-title"><?php echo ($fill === 100) ? 'Completed' : ($fill > 0 ? 'Checked-in' : 'Not Checked'); ?></div>
+                        <div class="time-line"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="9" stroke="#334" stroke-width="1.2" fill="none"/><path d="M12 7v5l3 2" stroke="#334" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg> Check-in: <?php echo $checkin_disp ?: '—'; ?></div>
+                        <div class="time-line"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="9" stroke="#334" stroke-width="1.2" fill="none"/><path d="M12 7v5l3 2" stroke="#334" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg> Check-out: <?php echo $checkout_disp ?: '—'; ?></div>
                     </div>
                 </div>
 
-                <div class="today-status">
-                    <strong>Today's Status:</strong>
-                    <div>Morning: <?php
-                        if (!empty($attendanceToday['checkin_time'])) {
-                            // parse stored timestamp as Asia/Thimphu (stored in that timezone)
-                            $dt = DateTime::createFromFormat('Y-m-d H:i:s', $attendanceToday['checkin_time'], new DateTimeZone('Asia/Thimphu'));
-                            if ($dt === false) {
-                                try {
-                                    $dt = new DateTime($attendanceToday['checkin_time']);
-                                    $dt->setTimezone(new DateTimeZone('Asia/Thimphu'));
-                                } catch (Exception $e) {
-                                    $dt = null;
-                                }
-                            }
-                            if ($dt) {
-                                $t = $dt->format('h:i:s A');
-                            } else {
-                                $t = date('h:i:s A', strtotime($attendanceToday['checkin_time']));
-                            }
-                            echo htmlspecialchars($t);
-                        } else {
-                            echo 'Not Checked';
-                        }
-                    ?></div>
-                    <div>Evening: <?php
-                        if (!empty($attendanceToday['checkout_time'])) {
-                            // parse stored timestamp as Asia/Thimphu (stored in that timezone)
-                            $dt = DateTime::createFromFormat('Y-m-d H:i:s', $attendanceToday['checkout_time'], new DateTimeZone('Asia/Thimphu'));
-                            if ($dt === false) {
-                                try {
-                                    $dt = new DateTime($attendanceToday['checkout_time']);
-                                    $dt->setTimezone(new DateTimeZone('Asia/Thimphu'));
-                                } catch (Exception $e) {
-                                    $dt = null;
-                                }
-                            }
-                            if ($dt) {
-                                $t = $dt->format('h:i:s A');
-                            } else {
-                                $t = date('h:i:s A', strtotime($attendanceToday['checkout_time']));
-                            }
-                            echo htmlspecialchars($t);
-                        } else {
-                            echo 'Not Checked';
-                        }
-                    ?></div>
+                <div class="timeline">
+                    <div class="title">Today's Timeline</div>
+                    <div style="display:flex;align-items:center;gap:12px">
+                        <div style="flex:0 0 auto;font-size:13px;color:#0b2a2a"><?php echo $checkin_disp ?: '—'; ?></div>
+                        <div style="flex:1; height:10px; background:#eef7f0; border-radius:999px; position:relative; overflow:hidden;">
+                            <div style="position:absolute;left:0;top:0;height:100%;background:#14b866;border-radius:999px;width:<?php echo (int)$fill; ?>%;"></div>
+                        </div>
+                        <div style="flex:0 0 auto;font-size:13px;color:#0b2a2a"><?php echo $checkout_disp ?: '—'; ?></div>
+                    </div>
                 </div>
 
-                <div class="monthly">
-                    <strong style="display:block;margin-bottom:6px">Monthly Summary (<?php echo (new DateTime('now', new DateTimeZone('Asia/Thimphu')))->format('F Y'); ?>)</strong>
-                    <div style="margin-bottom:6px">Days recorded: <?php echo $monthly['days']; ?></div>
-                    <div style="margin-bottom:6px">Morning present: <?php echo $monthly['morning']; ?></div>
-                    <div style="margin-bottom:6px">Evening present: <?php echo $monthly['evening']; ?></div>
+                <div class="stats">
+                    <div class="stat"><div class="num"><?php echo (int)$monthly['days']; ?></div><div class="label">Days</div></div>
+                    <div class="stat"><div class="num"><?php echo (int)$monthly['morning']; ?></div><div class="label">Morning</div></div>
+                    <div class="stat"><div class="num"><?php echo (int)$monthly['evening']; ?></div><div class="label">Evening</div></div>
                 </div>
 
-                <div style="height:16px;" aria-hidden="true"></div>
-
-                <div class="notifications">
-                    <strong>Notifications</strong>
-                    <?php if (empty($notifications)): ?>
-                        <div class="note">No notifications</div>
-                    <?php else: ?>
-                        <?php foreach ($notifications as $n): ?>
-                            <div class="note"><?php echo htmlspecialchars($n); ?></div>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
+                <?php if (!empty($notifications)): ?>
+                <div class="reminder">
+                    <?php echo htmlspecialchars(implode(' | ', $notifications)); ?>
                 </div>
+                <?php endif; ?>
             </div>
 
             <div id="leave" class="card leave-card">
