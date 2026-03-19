@@ -40,7 +40,7 @@ $username = 'NTMH';
             <a href="leave_records.php">Leave Records</a>
             <a href="reports.php">Reports</a>
             <a href="settings.php">Settings</a>
-            <a href="admin_logout.php">Logout</a>
+           
         </nav>
     </aside>
 
