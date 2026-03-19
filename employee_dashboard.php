@@ -13,6 +13,7 @@ $stmt = $conn->prepare("SELECT
     t.employee_id,
     t.employee_name,
     t.eid,
+    t.department_id,
     t.designation,
     t.status,
     d.department_name,
@@ -33,11 +34,31 @@ if (!$employee) {
 
 $employee_id = $employee['employee_id'] ?? null;
 
-// fetch department id for this employee
-$deptStmt = $conn->prepare("SELECT department_id FROM tab1 WHERE eid = :eid LIMIT 1");
-$deptStmt->execute([':eid' => $eid]);
-$deptRow = $deptStmt->fetch(PDO::FETCH_ASSOC);
-$department_id = $deptRow['department_id'] ?? null;
+// get department_id from employee
+$department_id = $employee['department_id'] ?? null;
+
+// optional override from POST
+$dept_from_post = $_POST['department_id'] ?? null;
+
+// decide final dept_id
+$dept_id = $dept_from_post !== null ? $dept_from_post : $department_id;
+
+// shift logic
+$shift = NULL;
+
+if ((int)$dept_id === 3) {
+
+    date_default_timezone_set('Asia/Thimphu');
+    $current_time = date('H:i:s');
+
+    if ($current_time >= '08:00:00' && $current_time < '14:00:00') {
+        $shift = 'morning';
+    } elseif ($current_time >= '14:00:00' && $current_time < '20:00:00') {
+        $shift = 'evening';
+    } else {
+        $shift = 'night';
+    }
+}
 
 // fetch department HoD name
 $hod_name = 'HoD';
@@ -110,7 +131,9 @@ if (!isset($_SESSION['leaves']) || !is_array($_SESSION['leaves'])) {
     $_SESSION['leaves'] = [];
 }
 
-$today = date('Y-m-d');
+$tz = new DateTimeZone('Asia/Thimphu');
+$nowTz = new DateTime('now', $tz);
+$today = $nowTz->format('Y-m-d');
 
 // Helper: reverse-geocode lat/lon using Nominatim
 function reverseGeocode($lat, $lon) {
@@ -209,17 +232,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['action'])) {
     }
 
     if ($_POST['action'] === 'checkin_morning') {
-        // Use Asia/Thimphu timezone (GMT+6) for stored and displayed times
-        $dt = new DateTime('now', new DateTimeZone('Asia/Thimphu'));
-        $nowStr = $dt->format('Y-m-d H:i:s');
-        $attDate = $dt->format('Y-m-d');
-        $timeStr = $dt->format('h:i:s A');
+        // Determine employee and department (allow POST override), then compute shift using Asia/Thimphu timezone
+        $dept_id = isset($_POST['department_id']) ? (int)$_POST['department_id'] : (int)$department_id;
+        $emp_id = isset($_POST['employee_id']) ? $_POST['employee_id'] : $employee_id;
 
+        $shift = NULL;
+        $dt = new DateTime('now', new DateTimeZone('Asia/Thimphu'));
+        $current_time = $dt->format('H:i:s');
+        if ((int)$dept_id === 3) {
+            if ($current_time >= '08:00:00' && $current_time < '14:00:00') {
+                $shift = 'morning';
+            } elseif ($current_time >= '14:00:00' && $current_time < '20:00:00') {
+                $shift = 'evening';
+            } else {
+                $shift = 'night';
+            }
+        }
+
+        // Insert using CURDATE() and NOW() on DB side; include address and status
         $stmt = $conn->prepare(
-            "INSERT INTO attendance (eid, attendance_date, morning_checkin, checkin_address, status)
-            VALUES (:eid, :att_date, :now, :addr, 'Present')"
+            "INSERT INTO attendance (employee_id, department_id, attendance_date, shift_type, checkin_time, checkin_address, status)
+            VALUES (?, ?, CURDATE(), ?, NOW(), ?, 'Present')"
         );
-        $stmt->execute([':eid' => $eid, ':att_date' => $attDate, ':now' => $nowStr, ':addr' => $address]);
+        $stmt->execute([$emp_id, $dept_id, $shift, $address]);
+
+        $timeStr = $dt->format('h:i:s A');
         $_SESSION['attendance'][$today]['morning'] = $address !== '' ? $timeStr . ' @ ' . $address : $timeStr;
     } elseif ($_POST['action'] === 'checkout_evening') {
         $dt = new DateTime('now', new DateTimeZone('Asia/Thimphu'));
@@ -229,10 +266,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['action'])) {
 
         $stmt = $conn->prepare(
             "UPDATE attendance
-            SET evening_checkout = :now, checkout_address = :addr
-            WHERE eid = :eid AND attendance_date = :att_date"
+            SET checkout_time = :now, checkout_address = :addr
+            WHERE employee_id = :emp AND attendance_date = CURDATE()"
         );
-        $stmt->execute([':now' => $nowStr, ':addr' => $address, ':eid' => $eid, ':att_date' => $attDate]);
+        $stmt->execute([':now' => $nowStr, ':addr' => $address, ':emp' => $employee_id]);
         $_SESSION['attendance'][$today]['evening'] = $address !== '' ? $timeStr . ' @ ' . $address : $timeStr;
     }
     // redirect to avoid form resubmission
@@ -241,21 +278,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['action'])) {
 }
 
 // load today's attendance from DB for this employee (use DB state, not session, to decide button state)
-$attStmt = $conn->prepare("SELECT morning_checkin, checkin_address, evening_checkout, checkout_address
-    FROM attendance WHERE eid = :eid AND attendance_date = CURDATE() LIMIT 1");
-$attStmt->execute([':eid' => $eid]);
+$attStmt = $conn->prepare(
+    "SELECT a.*, t.employee_name, d.department_name
+    FROM attendance a
+    JOIN tab1 t ON a.employee_id = t.employee_id
+    JOIN department d ON a.department_id = d.department_id
+    WHERE a.employee_id = ? LIMIT 1"
+);
+$attStmt->execute([$employee_id]);
 $attendanceToday = $attStmt->fetch(PDO::FETCH_ASSOC) ?: [];
-$hasMorning = !empty($attendanceToday['morning_checkin']);
-$hasEvening = !empty($attendanceToday['evening_checkout']);
+ $hasMorning = !empty($attendanceToday['checkin_time']);
+ $hasEvening = !empty($attendanceToday['checkout_time']);
 
-$month = date('Y-m');
+$month = $nowTz->format('Y-m');
+// Compute monthly summary from DB (avoids stale session data)
 $monthly = ['morning' => 0, 'evening' => 0, 'days' => 0];
-foreach ($_SESSION['attendance'] as $date => $rec) {
-    if (strpos($date, $month) === 0) {
-        $monthly['days']++;
-        if (!empty($rec['morning'])) $monthly['morning']++;
-        if (!empty($rec['evening'])) $monthly['evening']++;
-    }
+if (!empty($employee_id)) {
+    $startOfMonth = $nowTz->format('Y-m-01');
+    $endOfMonth = $nowTz->format('Y-m-t');
+    $sumStmt = $conn->prepare(
+        "SELECT
+            COUNT(*) AS days,
+            SUM(checkin_time IS NOT NULL) AS morning,
+            SUM(checkout_time IS NOT NULL) AS evening
+        FROM attendance
+        WHERE employee_id = ?
+        AND attendance_date BETWEEN ? AND ?"
+    );
+    $sumStmt->execute([$employee_id, $startOfMonth, $endOfMonth]);
+    $res = $sumStmt->fetch(PDO::FETCH_ASSOC) ?: [];
+    $monthly['days'] = (int)($res['days'] ?? 0);
+    $monthly['morning'] = (int)($res['morning'] ?? 0);
+    $monthly['evening'] = (int)($res['evening'] ?? 0);
 }
 
 $notifications = [];
@@ -337,6 +391,7 @@ if (!empty($_SESSION['attendance'][$today]['morning']) && empty($_SESSION['atten
                             <td style="padding:6px 8px;font-weight:700;">Role:</td>
                             <td style="padding:6px 8px;"><?php echo htmlspecialchars($employee['role_name'] ?? $employee['role'] ?? ''); ?></td>
                         </tr>
+                        
                         <tr>
                             <td style="padding:6px 8px;font-weight:700;">Status:</td>
                             <td style="padding:6px 8px;">
@@ -358,23 +413,23 @@ if (!empty($_SESSION['attendance'][$today]['morning']) && empty($_SESSION['atten
                 <h3>Attendance</h3>
                 <div class="att-actions">
                     <div style="display:inline">
-                        <button type="button" id="btn-checkin" class="btn" <?php echo ($hasMorning ?? false) ? 'disabled' : ''; ?>>Morning Check-in</button>
+                        <button type="button" id="btn-checkin" class="btn" <?php echo ($hasMorning ?? false) ? 'disabled' : ''; ?>>Check-in</button>
                     </div>
 
                     <div style="display:inline">
-                        <button type="button" id="btn-checkout" class="btn" <?php echo (!($hasMorning ?? false) || ($hasEvening ?? false)) ? 'disabled' : ''; ?>>Evening Check-out</button>
+                        <button type="button" id="btn-checkout" class="btn" <?php echo (!($hasMorning ?? false) || ($hasEvening ?? false)) ? 'disabled' : ''; ?>>Check-out</button>
                     </div>
                 </div>
 
                 <div class="today-status">
                     <strong>Today's Status:</strong>
                     <div>Morning: <?php
-                        if (!empty($attendanceToday['morning_checkin'])) {
+                        if (!empty($attendanceToday['checkin_time'])) {
                             // parse stored timestamp as Asia/Thimphu (stored in that timezone)
-                            $dt = DateTime::createFromFormat('Y-m-d H:i:s', $attendanceToday['morning_checkin'], new DateTimeZone('Asia/Thimphu'));
+                            $dt = DateTime::createFromFormat('Y-m-d H:i:s', $attendanceToday['checkin_time'], new DateTimeZone('Asia/Thimphu'));
                             if ($dt === false) {
                                 try {
-                                    $dt = new DateTime($attendanceToday['morning_checkin']);
+                                    $dt = new DateTime($attendanceToday['checkin_time']);
                                     $dt->setTimezone(new DateTimeZone('Asia/Thimphu'));
                                 } catch (Exception $e) {
                                     $dt = null;
@@ -383,7 +438,7 @@ if (!empty($_SESSION['attendance'][$today]['morning']) && empty($_SESSION['atten
                             if ($dt) {
                                 $t = $dt->format('h:i:s A');
                             } else {
-                                $t = date('h:i:s A', strtotime($attendanceToday['morning_checkin']));
+                                $t = date('h:i:s A', strtotime($attendanceToday['checkin_time']));
                             }
                             echo htmlspecialchars($t);
                         } else {
@@ -391,12 +446,12 @@ if (!empty($_SESSION['attendance'][$today]['morning']) && empty($_SESSION['atten
                         }
                     ?></div>
                     <div>Evening: <?php
-                        if (!empty($attendanceToday['evening_checkout'])) {
+                        if (!empty($attendanceToday['checkout_time'])) {
                             // parse stored timestamp as Asia/Thimphu (stored in that timezone)
-                            $dt = DateTime::createFromFormat('Y-m-d H:i:s', $attendanceToday['evening_checkout'], new DateTimeZone('Asia/Thimphu'));
+                            $dt = DateTime::createFromFormat('Y-m-d H:i:s', $attendanceToday['checkout_time'], new DateTimeZone('Asia/Thimphu'));
                             if ($dt === false) {
                                 try {
-                                    $dt = new DateTime($attendanceToday['evening_checkout']);
+                                    $dt = new DateTime($attendanceToday['checkout_time']);
                                     $dt->setTimezone(new DateTimeZone('Asia/Thimphu'));
                                 } catch (Exception $e) {
                                     $dt = null;
@@ -405,7 +460,7 @@ if (!empty($_SESSION['attendance'][$today]['morning']) && empty($_SESSION['atten
                             if ($dt) {
                                 $t = $dt->format('h:i:s A');
                             } else {
-                                $t = date('h:i:s A', strtotime($attendanceToday['evening_checkout']));
+                                $t = date('h:i:s A', strtotime($attendanceToday['checkout_time']));
                             }
                             echo htmlspecialchars($t);
                         } else {
@@ -415,7 +470,7 @@ if (!empty($_SESSION['attendance'][$today]['morning']) && empty($_SESSION['atten
                 </div>
 
                 <div class="monthly">
-                    <strong style="display:block;margin-bottom:6px">Monthly Summary (<?php echo date('F Y'); ?>)</strong>
+                    <strong style="display:block;margin-bottom:6px">Monthly Summary (<?php echo (new DateTime('now', new DateTimeZone('Asia/Thimphu')))->format('F Y'); ?>)</strong>
                     <div style="margin-bottom:6px">Days recorded: <?php echo $monthly['days']; ?></div>
                     <div style="margin-bottom:6px">Morning present: <?php echo $monthly['morning']; ?></div>
                     <div style="margin-bottom:6px">Evening present: <?php echo $monthly['evening']; ?></div>
