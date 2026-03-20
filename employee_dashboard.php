@@ -234,12 +234,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     // Ensure we have the current employee id
     $emp_id = $employee_id;
 
-    // get department from tab1 (fallback to resolved dept_id if available)
-    $stmt = $conn->prepare("SELECT department_id FROM tab1 WHERE employee_id = ?");
-    $stmt->execute([$emp_id]);
-    $dept = $stmt->fetchColumn();
+    // Determine department: prefer explicit POST override, then resolved $dept_id, then DB lookup
+    if (!empty($_POST['department_id'])) {
+        $dept = (int)$_POST['department_id'];
+    } elseif (isset($dept_id) && $dept_id !== null) {
+        $dept = (int)$dept_id;
+    } else {
+        $stmt = $conn->prepare("SELECT department_id FROM tab1 WHERE employee_id = ?");
+        $stmt->execute([$emp_id]);
+        $dept = $stmt->fetchColumn();
+        $dept = $dept !== false ? (int)$dept : null;
+    }
 
-    // current server time (uses PHP timezone; file sets "Asia/Thimphu" earlier where needed)
+    // use Asia/Thimphu timezone for all time comparisons
+    date_default_timezone_set('Asia/Thimphu');
     $time = date("H:i:s");
 
     // ===============================
@@ -529,8 +537,31 @@ if (!empty($hasMorning) && empty($hasEvening)) {
                     $fill = 0; if ($checkin_disp && $checkout_disp) $fill = 100; elseif ($checkin_disp) $fill = 60;
                 ?>
 
+                <?php
+                date_default_timezone_set('Asia/Thimphu');
+                $current_time = date("H:i:s");
+
+                $normalDepartments = [1,2,4,5,6];
+                $isNormal = in_array((int)$department_id, $normalDepartments);
+
+                $checkinClosed = ($isNormal && $current_time > "09:30:00");
+                ?>
+
                 <div class="att-actions">
-                    <button type="button" id="btn-checkin" class="btn" <?php echo ($hasMorning ?? false) ? 'disabled' : ''; ?>>Check-in</button>
+                    <button type="button" id="btn-checkin" class="btn"
+                        <?php echo ($hasMorning || $checkinClosed) ? 'disabled' : ''; ?>>
+
+                        <?php
+                            // priority order is IMPORTANT
+                            if ($hasMorning) {
+                                echo "Checked-in";
+                            } elseif ($checkinClosed) {
+                                echo "Check-in Closed";
+                            } else {
+                                echo "Check-in";
+                            }
+                        ?>
+                    </button>
                     <button type="button" id="btn-checkout" class="btn checkout" <?php echo (!($hasMorning ?? false) || ($hasEvening ?? false)) ? 'disabled' : ''; ?>>Check-out</button>
                 </div>
 
