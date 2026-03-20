@@ -221,60 +221,159 @@ function displayAddressForUI($stored) {
 }
 
 // Handle attendance POST actions (DB-backed) and accept lat/lon from client
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['action'])) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
+
+    // Capture lat/lon from client (if present) and resolve address
     $lat = $_POST['lat'] ?? '';
     $lon = $_POST['lon'] ?? '';
-
     $address = '';
-
     if ($lat && $lon) {
         $address = reverseGeocode($lat, $lon);
     }
 
-    if ($_POST['action'] === 'checkin_morning') {
-        // Determine employee and department (allow POST override), then compute shift using Asia/Thimphu timezone
-        $dept_id = isset($_POST['department_id']) ? (int)$_POST['department_id'] : (int)$department_id;
-        $emp_id = isset($_POST['employee_id']) ? $_POST['employee_id'] : $employee_id;
+    // Ensure we have the current employee id
+    $emp_id = $employee_id;
 
-        $shift = NULL;
-        $dt = new DateTime('now', new DateTimeZone('Asia/Thimphu'));
-        $current_time = $dt->format('H:i:s');
-        if ((int)$dept_id === 3) {
+    // get department from tab1 (fallback to resolved dept_id if available)
+    $stmt = $conn->prepare("SELECT department_id FROM tab1 WHERE employee_id = ?");
+    $stmt->execute([$emp_id]);
+    $dept = $stmt->fetchColumn();
+
+    // current server time (uses PHP timezone; file sets "Asia/Thimphu" earlier where needed)
+    $time = date("H:i:s");
+
+    // ===============================
+    // CHECK-IN
+    // ===============================
+    if ($_POST['action'] === 'checkin') {
+
+        // prevent duplicate for today
+        $check = $conn->prepare(
+            "SELECT COUNT(*) FROM attendance WHERE employee_id = ? AND attendance_date = CURDATE()"
+        );
+        $check->execute([$emp_id]);
+
+        if ($check->fetchColumn() > 0) {
+            $_SESSION['flash_error'] = "Already checked in!";
+            header("Location: " . $_SERVER['REQUEST_URI']);
+            exit;
+        }
+
+        // NORMAL DEPARTMENTS (office hours)
+        if (in_array((int)$dept, [1,2,4,5,6])) {
+
+            if ($time > "09:30:00") {
+                $_SESSION['flash_error'] = "Check-in closed!";
+                header("Location: " . $_SERVER['REQUEST_URI']);
+                exit;
+            }
+
+            $checkin_status = ($time <= "09:15:00") ? "On Time" : "Late";
+
+            $stmt = $conn->prepare(
+                "INSERT INTO attendance 
+                (employee_id, department_id, attendance_date, checkin_time, checkin_address, checkin_status)
+                VALUES (?, ?, CURDATE(), NOW(), ?, ?)"
+            );
+            $stmt->execute([$emp_id, $dept, $address, $checkin_status]);
+        }
+
+        // IPD / Shifted department
+        else if ((int)$dept === 3) {
+
+            // compute shift using Asia/Thimphu timezone
+            $dt = new DateTime('now', new DateTimeZone('Asia/Thimphu'));
+            $current_time = $dt->format('H:i:s');
+            $shift = 'night';
             if ($current_time >= '08:00:00' && $current_time < '14:00:00') {
                 $shift = 'morning';
             } elseif ($current_time >= '14:00:00' && $current_time < '20:00:00') {
                 $shift = 'evening';
-            } else {
-                $shift = 'night';
             }
+
+            $stmt = $conn->prepare(
+                "INSERT INTO attendance 
+                (employee_id, department_id, attendance_date, shift_type, checkin_time, checkin_address)
+                VALUES (?, ?, CURDATE(), ?, NOW(), ?)"
+            );
+            $stmt->execute([$emp_id, $dept, $shift, $address]);
         }
 
-        // Insert using CURDATE() and NOW() on DB side; include address and status
-        $stmt = $conn->prepare(
-            "INSERT INTO attendance (employee_id, department_id, attendance_date, shift_type, checkin_time, checkin_address, status)
-            VALUES (?, ?, CURDATE(), ?, NOW(), ?, 'Present')"
-        );
-        $stmt->execute([$emp_id, $dept_id, $shift, $address]);
-
-        $timeStr = $dt->format('h:i:s A');
-        $_SESSION['attendance'][$today]['morning'] = $address !== '' ? $timeStr . ' @ ' . $address : $timeStr;
-    } elseif ($_POST['action'] === 'checkout_evening') {
-        $dt = new DateTime('now', new DateTimeZone('Asia/Thimphu'));
-        $nowStr = $dt->format('Y-m-d H:i:s');
-        $attDate = $dt->format('Y-m-d');
-        $timeStr = $dt->format('h:i:s A');
-
-        $stmt = $conn->prepare(
-            "UPDATE attendance
-            SET checkout_time = :now, checkout_address = :addr
-            WHERE employee_id = :emp AND attendance_date = CURDATE()"
-        );
-        $stmt->execute([':now' => $nowStr, ':addr' => $address, ':emp' => $employee_id]);
-        $_SESSION['attendance'][$today]['evening'] = $address !== '' ? $timeStr . ' @ ' . $address : $timeStr;
+        header("Location: " . $_SERVER['REQUEST_URI']);
+        exit;
     }
-    // redirect to avoid form resubmission
-    header("Location: " . $_SERVER['REQUEST_URI']);
-    exit;
+
+    // ===============================
+    // CHECK-OUT
+    // ===============================
+    if ($_POST['action'] === 'checkout') {
+
+        $stmt = $conn->prepare(
+            "SELECT * FROM attendance WHERE employee_id = ? AND attendance_date = CURDATE()"
+        );
+        $stmt->execute([$emp_id]);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$row) {
+            $_SESSION['flash_error'] = "Check-in required!";
+            header("Location: " . $_SERVER['REQUEST_URI']);
+            exit;
+        }
+
+        if (!empty($row['checkout_time'])) {
+            $_SESSION['flash_error'] = "Already checked out!";
+            header("Location: " . $_SERVER['REQUEST_URI']);
+            exit;
+        }
+
+        // NORMAL DEPARTMENTS
+        if (in_array((int)$dept, [1,2,4,5,6])) {
+
+            if ($time < "14:55:00") {
+                $_SESSION['flash_error'] = "Checkout allowed after 2:55 PM!";
+                header("Location: " . $_SERVER['REQUEST_URI']);
+                exit;
+            }
+
+            $stmt = $conn->prepare(
+                "UPDATE attendance 
+                SET checkout_time = NOW(),
+                    checkout_address = ?,
+                    checkout_status = 'Completed'
+                WHERE attendance_id = ?"
+            );
+            $stmt->execute([$address, $row['attendance_id']]);
+        }
+
+        // IPD (no restriction)
+        else if ((int)$dept === 3) {
+
+            $stmt = $conn->prepare(
+                "UPDATE attendance 
+                SET checkout_time = NOW(),
+                    checkout_address = ?
+                WHERE attendance_id = ?"
+            );
+            $stmt->execute([$address, $row['attendance_id']]);
+        }
+
+        header("Location: " . $_SERVER['REQUEST_URI']);
+        exit;
+    }
+}
+
+// Auto mark missing check-outs after 5:00 PM for normal departments
+date_default_timezone_set('Asia/Thimphu');
+if (date("H:i:s") >= "17:00:00") {
+    $stmt = $conn->prepare(
+        "UPDATE attendance
+        SET checkout_status = 'Missing'
+        WHERE attendance_date = CURDATE()
+        AND checkin_time IS NOT NULL
+        AND checkout_time IS NULL
+        AND department_id IN (1,2,4,5,6)"
+    );
+    $stmt->execute();
 }
 
 // load today's attendance from DB for this employee (use DB state, not session, to decide button state)
@@ -639,10 +738,10 @@ if (!empty($hasMorning) && empty($hasEvening)) {
     }
 
     document.getElementById('btn-checkin')?.addEventListener('click', function(){
-        withGeo('checkin_morning');
+        withGeo('checkin'); // ✅ FIXED
     });
     document.getElementById('btn-checkout')?.addEventListener('click', function(){
-        withGeo('checkout_evening');
+        withGeo('checkout'); // ✅ FIXED
     });
 })();
 
