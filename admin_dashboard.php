@@ -36,7 +36,7 @@ $username = 'NTMH';
             <a href="admin/roles/roles.php">Roles & Permissions</a>
             <a href="admin/leave_types/index.php">Leave Types</a>
             <a href="admin/leave_balances/leave_balance.php">Leave Balance</a>
-            <a href="attendance_logs.php">Attendance Logs</a>
+            <a href="/attendanceleave/attendance_logs.php">Attendance Logs</a>
             <a href="leave_records.php">Leave Records</a>
             <a href="reports.php">Reports</a>
             <a href="settings.php">Settings</a>
@@ -75,7 +75,7 @@ $username = 'NTMH';
                     <a class="btn" href="manage_departments.php">Manage Departments</a>
                     <a class="btn" href="manage_leave_types.php">Leave Types</a>
                     <a class="btn" href="reports.php">Reports</a>
-                    <a class="btn" href="attendance_log.php">Attendance Log</a>
+                    <a class="btn" href="/attendanceleave/attendance_logs.php">Attendance Log</a>
                     <a class="btn" href="settings.php">Settings</a>
                 </div>
             </div>

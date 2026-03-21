@@ -41,8 +41,8 @@
 							<div>
 								<label class="block text-sm text-gray-300 mb-2">Password</label>
 								<div class="relative">
-									<input name="password" type="password" required class="w-full px-4 py-3 rounded bg-[#213683] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Enter your password">
-									<button type="button" class="absolute right-3 top-3 text-gray-400" aria-label="toggle password visibility">👁️</button>
+									<input id="password" name="password" type="password" required class="w-full px-4 py-3 rounded bg-[#213683] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Enter your password">
+									<button type="button" onclick="togglePassword()" class="absolute right-3 top-3 text-gray-400" aria-label="toggle password visibility">👁️</button>
 								</div>
 							</div>
 
@@ -73,5 +73,17 @@
 				</div>
 			</div>
 		</div>
+
+		<script>
+function togglePassword() {
+	var passwordField = document.getElementById("password");
+
+	if (passwordField.type === "password") {
+		passwordField.type = "text";
+	} else {
+		passwordField.type = "password";
+	}
+}
+</script>
 	</body>
 </html>

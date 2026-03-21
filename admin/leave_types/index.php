@@ -107,7 +107,7 @@ $showForm = (isset($_GET['edit']) || isset($_GET['add']));
 			<a href="../roles/roles.php">Roles & Permissions</a>
 			<a href="index.php" <?php if(basename($_SERVER['PHP_SELF']) === 'index.php') echo 'class="active"'; ?>>Leave Types</a>
 			<a href="../leave_balances/leave_balance.php">Leave Balance</a>
-			<a href="../attendance_logs.php">Attendance Logs</a>
+			<a href="/attendanceleave/attendance_logs.php">Attendance Logs</a>
 			<a href="../leave_records.php">Leave Records</a>
 			<a href="../reports.php">Reports</a>
 			<a href="../settings.php">Settings</a>
